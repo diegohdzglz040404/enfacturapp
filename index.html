@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Generar CFDI — Datos del Emisor, Receptor y Operación</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#071428; --card:#061022aa; --accent:#2C9CFF; --muted:#9fbfe6; --glass: rgba(255,255,255,0.03);
+    --radius:10px;
+    --select-bg-rgb: 4,16,37; /* fondo similar al background */
+  }
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;font-family:Inter,system-ui,Arial;color:#eaf6ff;
+    background:linear-gradient(180deg,#041025,#000814);display:flex;align-items:center;justify-content:center;padding:28px;}
+  .card{width:100%;max-width:980px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border:1px solid var(--glass);border-radius:var(--radius);padding:22px;box-shadow:0 12px 34px rgba(2,6,23,0.6);}
+  h1{margin:0 0 8px;font-size:1.05rem;background:linear-gradient(90deg,#8ad6ff,#4da6ff);-webkit-background-clip:text;color:transparent}
+  p.lead{margin:0 0 16px;color:#bcdff7}
+  .grid{display:grid;gap:12px}
+  .cols-2{grid-template-columns:1fr 1fr}
+  .section{background:rgba(255,255,255,0.01);padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.02)}
+  label{display:block;font-size:0.82rem;color:var(--muted);margin-bottom:6px}
+  input[type=text], input[type=number], textarea, select{
+    width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit;font-size:0.95rem}
+  textarea{min-height:64px;resize:vertical}
+  .row{display:flex;gap:10px}
+  .row > *{flex:1}
+  .right{text-align:right}
+  .muted{color:#9fbfe6;font-size:0.9rem}
+  .btn{background:linear-gradient(90deg,var(--accent),#0066FF);color:#fff;padding:10px 12px;border:none;border-radius:8px;cursor:pointer;font-weight:600}
+  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04)}
+  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:0.95rem}
+  th,td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.03);text-align:left}
+  th{color:var(--muted);font-weight:600;font-size:0.85rem}
+  tfoot td{font-weight:700}
+  .small{font-size:0.85rem;color:var(--muted)}
+  .controls{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+
+  /* Cambios solicitados: selects más visibles con fondo similar al del fondo */
+  select#uso-cfdi,
+  select#forma-pago,
+  select#metodo-pago {
+    background: rgb(var(--select-bg-rgb));
+    color: #eaf6ff;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.45) inset;
+  }
+  /* Asegurar que las opciones muestren texto legible en navegadores que soportan */
+  select#uso-cfdi option,
+  select#forma-pago option,
+  select#metodo-pago option {
+    color: #eaf6ff;
+    background: rgb(var(--select-bg-rgb));
+  }
+  /* foco más visible */
+  select#uso-cfdi:focus,
+  select#forma-pago:focus,
+  select#metodo-pago:focus {
+    outline: 2px solid rgba(44,156,255,0.18);
+    outline-offset: 2px;
+  }
+
+  @media (max-width:880px){ .cols-2{grid-template-columns:1fr} .row{flex-direction:column} }
+</style>
+</head>
+<body>
+<main class="card" role="main" aria-labelledby="main-title">
+  <header>
+    <h1 id="main-title">FACTURAPP</h1>
+    <p class="lead small">Completa los datos necesarios para generar la factura electrónica (CFDI). Los campos marcados son obligatorios.</p>
+  </header>
+
+  <form id="cfdi-form" action="/enviar-factura" method="POST" novalidate>
+    <!-- Emisor -->
+    <section class="section" aria-labelledby="emisor-title">
+      <h2 id="emisor-title" class="small">Datos del Emisor</h2>
+      <div class="grid cols-2">
+        <div>
+          <label for="emisor-rfc">RFC (con homoclave) *</label>
+          <input id="emisor-rfc" name="emisor_rfc" type="text" required
+                 pattern="^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$" placeholder="AAA010101AAA" autocomplete="organization" />
+        </div>
+        <div>
+          <label for="emisor-nombre">Nombre o Razón Social *</label>
+          <input id="emisor-nombre" name="emisor_nombre" type="text" required placeholder="Nombre según la constancia de situación fiscal" />
+        </div>
+
+        <div>
+          <label for="emisor-regimen">Régimen Fiscal *</label>
+          <select id="emisor-regimen" name="emisor_regimen" required>
+            <option value="">Selecciona</option>
+            <option>Régimen Simplificado de Confianza (RESICO)</option>
+            <option>Personas Morales</option>
+            <option>Actividades Empresariales</option>
+            <option>Sueldos y Salarios</option>
+            <option>Otros</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="emisor-cpostal">Lugar de Expedición (C.P.) *</label>
+          <input id="emisor-cpostal" name="emisor_cp" type="text" required pattern="^\d{5}$" placeholder="12345" />
+        </div>
+
+        <div style="grid-column:1 / -1">
+          <label for="emisor-domicilio">Domicilio Fiscal (Calle, número, colonia, municipio, estado, código postal) *</label>
+          <textarea id="emisor-domicilio" name="emisor_domicilio" required placeholder="Calle, número, colonia, municipio, estado, código postal"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- Receptor -->
+    <section class="section" aria-labelledby="receptor-title" style="margin-top:12px">
+      <h2 id="receptor-title" class="small">Datos del Cliente (Receptor)</h2>
+      <div class="grid cols-2">
+        <div>
+          <label for="receptor-rfc">RFC (con homoclave) *</label>
+          <input id="receptor-rfc" name="receptor_rfc" type="text" required
+                 pattern="^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$" placeholder="AAA010101AAA" />
+        </div>
+        <div>
+          <label for="receptor-nombre">Nombre o Razón Social *</label>
+          <input id="receptor-nombre" name="receptor_nombre" type="text" required placeholder="Nombre según la constancia de situación fiscal" />
+        </div>
+
+        <div>
+          <label for="receptor-cpostal">Domicilio Fiscal (C.P.)</label>
+          <input id="receptor-cpostal" name="receptor_cp" type="text" pattern="^\d{5}$" placeholder="Opcional: 54321" />
+        </div>
+
+        <div>
+          <label for="receptor-regimen">Régimen Fiscal (Receptor)</label>
+          <input id="receptor-regimen" name="receptor_regimen" type="text" placeholder="Ej: RESICO / Sueldos y Salarios" />
+        </div>
+
+        <div style="grid-column:1 / -1">
+          <label for="uso-cfdi">Uso del CFDI *</label>
+          <select id="uso-cfdi" name="uso_cfdi" required>
+            <option value="">Selecciona</option>
+            <option value="G03">G03 - Gastos en general</option>
+            <option value="P01">P01 - Por definir</option>
+            <option value="G01">G01 - Adquisición de mercancías</option>
+            <option value="G02">G02 - Devoluciones, descuentos o bonificaciones</option>
+            <option value="D04">D04 - Donativos</option>
+            <option value="I01">I01 - Adquisición de inmuebles</option>
+            <option value="I02">I02 - Mobiliario y equipo</option>
+            <option value="OTRO">Otro</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Operación / Conceptos (VACÍA al cargar para recibir información) -->
+    <section class="section" aria-labelledby="operacion-title" style="margin-top:12px">
+      <h2 id="operacion-title" class="small">Datos de la Operación (Conceptos)</h2>
+
+      <div>
+        <table id="concepts-table" aria-describedby="concepts-desc">
+          <caption id="concepts-desc" class="small muted">Agrega uno o más conceptos. Los importes se calculan automáticamente.</caption>
+          <thead>
+            <tr>
+              <th>Clave Prod/Serv</th>
+              <th>Cantidad</th>
+              <th>Clave Unidad</th>
+              <th>Unidad</th>
+              <th>Descripción</th>
+              <th>Valor Unitario</th>
+              <th>Importe</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="concepts-body">
+            <!-- VACÍO: listo para recibir filas -->
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="6" class="right">Subtotal</td>
+              <td id="subtotal">$0.00</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td colspan="6" class="right">Impuestos trasladados (IVA)</td>
+              <td id="taxes">$0.00</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td colspan="6" class="right">Total</td>
+              <td id="total">$0.00</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div class="controls">
+          <select id="iva-rate" class="small" title="Tasa de IVA">
+            <option value="0.16">IVA 16%</option>
+            <option value="0.08">IVA 8% (frontera)</option>
+            <option value="0.0">Exento / 0%</option>
+          </select>
+          <button type="button" id="add-row" class="btn ghost">+ Agregar Concepto</button>
+        </div>
+      </div>
+
+      <div style="margin-top:12px" class="grid cols-2">
+        <div>
+          <label for="forma-pago">Forma de Pago *</label>
+          <select id="forma-pago" name="forma_pago" required>
+            <option value="">Selecciona</option>
+            <option value="01">01 - Efectivo</option>
+            <option value="03">03 - Transferencia Electrónica</option>
+            <option value="04">04 - Tarjeta de Crédito</option>
+            <option value="99">99 - Por definir</option>
+          </select>
+        </div>
+        <div>
+          <label for="metodo-pago">Método de Pago *</label>
+          <select id="metodo-pago" name="metodo_pago" required>
+            <option value="">Selecciona</option>
+            <option value="PUE">PUE - Pago en una sola exhibición</option>
+            <option value="PPD">PPD - Pago en parcialidades o diferido</option>
+          </select>
+        </div>
+      </div>
+
+    </section>
+
+    <div style="display:flex;gap:8px;margin-top:14px;justify-content:space-between;align-items:center">
+      <div class="small muted">Revisa que los datos coincidan con tu Constancia de Situación Fiscal (SAT).</div>
+      <div style="display:flex;gap:8px">
+        <button type="button" id="reset-btn" class="btn ghost">Limpiar</button>
+        <button type="submit" class="btn">Generar / Guardar</button>
+      </div>
+    </div>
+  </form>
+</main>
+
+<!-- Plantilla de fila (oculta) -->
+<template id="concept-row-tpl">
+  <tr class="concept-row">
+    <td><input name="c_ClaveProdServ[]" type="text" required placeholder="Clave SAT"></td>
+    <td><input name="cantidad[]" type="number" min="0" step="1" value="1" required></td>
+    <td><input name="c_ClaveUnidad[]" type="text" required placeholder="H87"></td>
+    <td><input name="unidad[]" type="text" required placeholder="Pieza"></td>
+    <td><input name="descripcion[]" type="text" required placeholder="Descripción detallada"></td>
+    <td><input name="valor_unitario[]" type="number" min="0" step="0.01" value="0.00" required></td>
+    <td class="right importe-cell">$0.00</td>
+    <td class="right"><button type="button" class="remove-row btn ghost">Eliminar</button></td>
+  </tr>
+</template>
+
+<script>
+(function(){
+  const tbody = document.getElementById('concepts-body');
+  const tpl = document.getElementById('concept-row-tpl');
+  const addBtn = document.getElementById('add-row');
+  const ivaSelect = document.getElementById('iva-rate');
+  const subtotalEl = document.getElementById('subtotal');
+  const taxesEl = document.getElementById('taxes');
+  const totalEl = document.getElementById('total');
+  const form = document.getElementById('cfdi-form');
+  const resetBtn = document.getElementById('reset-btn');
+
+  function fmt(v){ return v.toLocaleString('es-MX',{style:'currency',currency:'MXN'}); }
+
+  function addRow(values){
+    const node = tpl.content.cloneNode(true);
+    const tr = node.querySelector('tr');
+    tbody.appendChild(node);
+    // if values provided, fill inputs
+    if(values){
+      const inputs = tr.querySelectorAll('input');
+      inputs.forEach((inp,i)=> inp.value = values[i] ?? inp.value);
+    }
+    attachRowListeners(tr);
+    recalcAll();
+  }
+
+  function attachRowListeners(tr){
+    const inputs = tr.querySelectorAll('input');
+    inputs.forEach(inp => inp.addEventListener('input', recalcAll));
+    const removeBtn = tr.querySelector('.remove-row');
+    removeBtn.addEventListener('click', ()=>{ tr.remove(); recalcAll(); });
+  }
+
+  function recalcAll(){
+    let subtotal = 0;
+    tbody.querySelectorAll('tr').forEach(tr=>{
+      const cantidad = parseFloat(tr.querySelector('input[name="cantidad[]"]').value) || 0;
+      const vu = parseFloat(tr.querySelector('input[name="valor_unitario[]"]').value) || 0;
+      const importe = Math.round((cantidad * vu + Number.EPSILON)*100)/100;
+      tr.querySelector('.importe-cell').textContent = fmt(importe);
+      subtotal += importe;
+    });
+    subtotal = Math.round((subtotal+Number.EPSILON)*100)/100;
+    const ivaRate = parseFloat(ivaSelect.value) || 0;
+    const taxes = Math.round((subtotal * ivaRate + Number.EPSILON)*100)/100;
+    const total = Math.round((subtotal + taxes + Number.EPSILON)*100)/100;
+    subtotalEl.textContent = fmt(subtotal);
+    taxesEl.textContent = fmt(taxes);
+    totalEl.textContent = fmt(total);
+  }
+
+  addBtn.addEventListener('click', ()=> addRow());
+  ivaSelect.addEventListener('change', recalcAll);
+
+  // NOTA: No se agrega fila de ejemplo al cargar — la sección de Operación queda VACÍA para recibir información.
+
+  // Limpiar formulario
+  resetBtn.addEventListener('click', ()=> {
+    if(!confirm('Limpiar todos los campos?')) return;
+    form.reset();
+    tbody.innerHTML = '';
+    recalcAll();
+  });
+
+  // Validación antes de enviar
+  form.addEventListener('submit', (e)=>{
+    // Recalcular para asegurar totales correctos
+    recalcAll();
+
+    // validaciones básicas
+    const requiredSelectors = ['#emisor-rfc','#emisor-nombre','#emisor-domicilio','#emisor-cpostal',
+      '#receptor-rfc','#receptor-nombre','#uso-cfdi','#forma-pago','#metodo-pago'];
+    for(const sel of requiredSelectors){
+      const el = document.querySelector(sel);
+      if(!el) continue;
+      if(!el.checkValidity()){
+        e.preventDefault();
+        el.reportValidity();
+        el.scrollIntoView({behavior:'smooth',block:'center'});
+        return;
+      }
+    }
+    // Al menos 1 concepto
+    if(tbody.querySelectorAll('tr').length === 0){
+      e.preventDefault();
+      alert('Agrega al menos un concepto antes de enviar.');
+      addRow();
+      return;
+    }
+    // Aquí puedes añadir envío real al servidor. Por defecto el form hará POST a action="/enviar-factura".
+  });
+
+})();
+</script>
+</body>
+</html>
