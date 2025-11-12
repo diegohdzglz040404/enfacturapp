@@ -7,62 +7,148 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#071428; --card:#061022aa; --accent:#2C9CFF; --muted:#9fbfe6; --glass: rgba(255,255,255,0.03);
+    /* tonos neutros / blancos solicitados */
+    --page-bg: #313233;                    /* rgb(49,50,51) */
+    --card-bg: #313233;                    /* tarjetas / secciones */
+    --accent: #FFFFFF;                     /* acento claro (blanco) */
+    --accent-light: #F2F2F2;               /* acento claro secundario */
+    --muted: #CFCFCF;                      /* texto secundario / labels */
+    --shape-bg-color: #2b2b2b;             /* inputs, ligeramente más oscuro que la card */
+    --glass: rgba(255,255,255,0.03);
     --radius:10px;
-    --select-bg-rgb: 4,16,37; /* fondo similar al background */
+    --select-bg-rgb: 49,50,51;             /* usado como rgb(...) */
+    --btn-bg: #FFFFFF;                     /* botones sólidos (blanco) */
+    --btn-text-dark: #000000;              /* texto sobre botones claros */
+    --color-error: #FF6B6B;                /* estado: error */
+    --color-success: #51CF66;              /* estado: éxito */
   }
-  *{box-sizing:border-box}
-  body{margin:0;min-height:100vh;font-family:Inter,system-ui,Arial;color:#eaf6ff;
-    background:linear-gradient(180deg,#041025,#000814);display:flex;align-items:center;justify-content:center;padding:28px;}
-  .card{width:100%;max-width:980px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    border:1px solid var(--glass);border-radius:var(--radius);padding:22px;box-shadow:0 12px 34px rgba(2,6,23,0.6);}
-  h1{margin:0 0 8px;font-size:1.05rem;background:linear-gradient(90deg,#8ad6ff,#4da6ff);-webkit-background-clip:text;color:transparent}
-  p.lead{margin:0 0 16px;color:#bcdff7}
-  .grid{display:grid;gap:12px}
-  .cols-2{grid-template-columns:1fr 1fr}
-  .section{background:rgba(255,255,255,0.01);padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.02)}
-  label{display:block;font-size:0.82rem;color:var(--muted);margin-bottom:6px}
-  input[type=text], input[type=number], textarea, select{
-    width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit;font-size:0.95rem}
-  textarea{min-height:64px;resize:vertical}
-  .row{display:flex;gap:10px}
-  .row > *{flex:1}
-  .right{text-align:right}
-  .muted{color:#9fbfe6;font-size:0.9rem}
-  .btn{background:linear-gradient(90deg,var(--accent),#0066FF);color:#fff;padding:10px 12px;border:none;border-radius:8px;cursor:pointer;font-weight:600}
-  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04)}
-  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:0.95rem}
-  th,td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.03);text-align:left}
-  th{color:var(--muted);font-weight:600;font-size:0.85rem}
-  tfoot td{font-weight:700}
-  .small{font-size:0.85rem;color:var(--muted)}
-  .controls{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
 
-  /* Cambios solicitados: selects más visibles con fondo similar al del fondo */
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:Inter,system-ui,Arial;
+    color:var(--accent);
+    background: linear-gradient(180deg, var(--page-bg), #262627);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px;
+  }
+
+  .card{
+    width:100%;
+    max-width:980px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    background-color: var(--card-bg);
+    border:1px solid var(--glass);
+    border-radius:var(--radius);
+    padding:22px;
+    box-shadow: 0 12px 34px rgba(0,0,0,0.6);
+  }
+
+  h1{
+    margin:0 0 8px;
+    font-size:1.05rem;
+    color:var(--accent);
+    font-weight:600;
+  }
+
+  p.lead{ margin:0 0 16px; color:var(--accent-light) }
+
+  .grid{ display:grid; gap:12px }
+  .cols-2{ grid-template-columns:1fr 1fr }
+
+  .section{
+    background: rgba(255,255,255,0.01);
+    padding:12px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,0.02);
+  }
+
+  label{ display:block; font-size:0.82rem; color:var(--muted); margin-bottom:6px }
+
+  input[type=text], input[type=number], textarea, select{
+    width:100%;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,0.06);
+    background: var(--shape-bg-color);
+    color: var(--accent);
+    font-size:0.95rem;
+  }
+
+  textarea{ min-height:64px; resize:vertical }
+
+  .row{ display:flex; gap:10px }
+  .row > *{ flex:1 }
+  .right{ text-align:right }
+
+  .muted{ color:var(--muted); font-size:0.9rem }
+
+  /* botones: fondo blanco, texto negro (sin azules) */
+  .btn{
+    background: var(--btn-bg);
+    color: var(--btn-text-dark);
+    padding:10px 12px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+  }
+  .btn.ghost{
+    background:transparent;
+    border:1px solid rgba(255,255,255,0.04);
+    color:var(--accent);
+  }
+
+  table{ width:100%; border-collapse:collapse; margin-top:8px; font-size:0.95rem }
+  th,td{ padding:8px; border-bottom:1px solid rgba(255,255,255,0.03); text-align:left }
+  th{ color:var(--muted); font-weight:600; font-size:0.85rem }
+  tfoot td{ font-weight:700 }
+
+  .small{ font-size:0.85rem; color:var(--muted) }
+  .controls{ display:flex; gap:8px; justify-content:flex-end; margin-top:10px }
+
+  /* selects: fondo neutro (sin azul) */
   select#uso-cfdi,
   select#forma-pago,
-  select#metodo-pago {
+  select#metodo-pago,
+  select#emisor-regimen,
+  select#iva-rate,
+  select#forma-pago {
     background: rgb(var(--select-bg-rgb));
-    color: #eaf6ff;
-    border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.45) inset;
+    color: var(--accent);
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.45);
+    -webkit-appearance: none;
+    appearance: none;
   }
-  /* Asegurar que las opciones muestren texto legible en navegadores que soportan */
-  select#uso-cfdi option,
-  select#forma-pago option,
-  select#metodo-pago option {
-    color: #eaf6ff;
+
+  select option{
+    color: var(--accent);
     background: rgb(var(--select-bg-rgb));
   }
-  /* foco más visible */
-  select#uso-cfdi:focus,
-  select#forma-pago:focus,
-  select#metodo-pago:focus {
-    outline: 2px solid rgba(44,156,255,0.18);
+
+  /* focus: usar acento claro / blanca sutil */
+  select:focus, input:focus, textarea:focus {
+    outline: 2px solid rgba(255,255,255,0.12);
     outline-offset: 2px;
   }
 
-  @media (max-width:880px){ .cols-2{grid-template-columns:1fr} .row{flex-direction:column} }
+  /* indicadores de estado (clases utilitarias) */
+  .status {
+    display:inline-block;
+    padding:4px 8px;
+    border-radius:999px;
+    font-size:0.82rem;
+    font-weight:600;
+    color:#000000;
+  }
+  .status.success{ background: var(--color-success); color: #000; }
+  .status.error{ background: var(--color-error); color: #000; }
+
+  @media (max-width:880px){ .cols-2{ grid-template-columns:1fr } .row{ flex-direction:column } }
 </style>
 </head>
 <body>
@@ -152,7 +238,7 @@
       </div>
     </section>
 
-    <!-- Operación / Conceptos (VACÍA al cargar para recibir información) -->
+    <!-- Operación / Conceptos -->
     <section class="section" aria-labelledby="operacion-title" style="margin-top:12px">
       <h2 id="operacion-title" class="small">Datos de la Operación (Conceptos)</h2>
 
@@ -171,9 +257,7 @@
               <th></th>
             </tr>
           </thead>
-          <tbody id="concepts-body">
-            <!-- VACÍO: listo para recibir filas -->
-          </tbody>
+          <tbody id="concepts-body"></tbody>
           <tfoot>
             <tr>
               <td colspan="6" class="right">Subtotal</td>
@@ -268,7 +352,6 @@
     const node = tpl.content.cloneNode(true);
     const tr = node.querySelector('tr');
     tbody.appendChild(node);
-    // if values provided, fill inputs
     if(values){
       const inputs = tr.querySelectorAll('input');
       inputs.forEach((inp,i)=> inp.value = values[i] ?? inp.value);
@@ -305,9 +388,6 @@
   addBtn.addEventListener('click', ()=> addRow());
   ivaSelect.addEventListener('change', recalcAll);
 
-  // NOTA: No se agrega fila de ejemplo al cargar — la sección de Operación queda VACÍA para recibir información.
-
-  // Limpiar formulario
   resetBtn.addEventListener('click', ()=> {
     if(!confirm('Limpiar todos los campos?')) return;
     form.reset();
@@ -315,12 +395,8 @@
     recalcAll();
   });
 
-  // Validación antes de enviar
   form.addEventListener('submit', (e)=>{
-    // Recalcular para asegurar totales correctos
     recalcAll();
-
-    // validaciones básicas
     const requiredSelectors = ['#emisor-rfc','#emisor-nombre','#emisor-domicilio','#emisor-cpostal',
       '#receptor-rfc','#receptor-nombre','#uso-cfdi','#forma-pago','#metodo-pago'];
     for(const sel of requiredSelectors){
@@ -333,14 +409,12 @@
         return;
       }
     }
-    // Al menos 1 concepto
     if(tbody.querySelectorAll('tr').length === 0){
       e.preventDefault();
       alert('Agrega al menos un concepto antes de enviar.');
       addRow();
       return;
     }
-    // Aquí puedes añadir envío real al servidor. Por defecto el form hará POST a action="/enviar-factura".
   });
 
 })();
